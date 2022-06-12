@@ -72,10 +72,11 @@ function AddButton(
 
 export default function Main() {
   const [url, setUrl] = useState("");
-  const [urls, setUrls] = useState<string[]>(
-    JSON.parse(localStorage.getItem("urls") || "[]"),
-  );
+  const [urls, setUrls] = useState<string[]>([]);
 
+  useEffect(() => {
+    setUrls(JSON.parse(localStorage.getItem("urls") || "[]"));
+  }, []);
   useEffect(() => {
     localStorage.setItem("urls", JSON.stringify(urls));
   }, [urls]);
