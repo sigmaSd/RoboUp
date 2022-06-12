@@ -16,7 +16,9 @@ async function pinger(urls: Set<string>) {
       } catch { /*ignore*/ }
       console.log(`${url} is down`);
     }
-    console.log("");
+    if (urls.size != 0) {
+      console.log("");
+    }
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 }
