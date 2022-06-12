@@ -3,7 +3,7 @@ import { h, useEffect, useState } from "$fresh/runtime.ts";
 
 function Input(
   {
-    value = "",
+    value,
     setValue,
   }: {
     value: string;
@@ -12,7 +12,9 @@ function Input(
 ) {
   return (
     <div>
+      <p style={{ padding: 10 }}>Enter a url to monitor:</p>
       <input
+        placeholder="https://github.com"
         value={value}
         onChange={(e) => setValue((e.target! as HTMLInputElement).value)}
       />
@@ -22,22 +24,53 @@ function Input(
 
 function Urls(
   {
+    id,
     urls,
     setUrls,
   }: {
+    id: number;
     urls: string[];
     setUrls: (urls: string[]) => void;
   },
 ) {
+  const [urlsState, setUrlsState] = useState<Map<string, "up" | "down">>(
+    new Map(),
+  );
+  useEffect(() => {
+    if (id !== 0) {
+      fetch(`/api/pinger?id=${id}`).then((res) => res.json()).then(
+        (data) => {
+          setUrlsState(new Map(Object.entries(data)));
+        },
+      );
+    }
+  });
+
   return (
     <div>
       <ul>
         {urls.map((url, i) => (
           <li key={i}>
-            <a style={{ "padding": 10 }} href={url}>{url}</a>
-            <button onClick={() => setUrls(urls.filter((_, j) => j !== i))}>
-              Delete
-            </button>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+            >
+              <a style={{ padding: 10 }} href={url}>{url}</a>
+              <p
+                style={{
+                  padding: 10,
+                  color: urlsState.get(url) === "up" ? "green" : "red",
+                }}
+              >
+                {urlsState.get(url)}
+              </p>
+              <button onClick={() => setUrls(urls.filter((_, j) => j !== i))}>
+                Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>
@@ -73,7 +106,22 @@ function AddButton(
 export default function Main() {
   const [url, setUrl] = useState("");
   const [urls, setUrls] = useState<string[]>([]);
+  const [id, setId] = useState<number>(0);
 
+  useEffect(() => {
+    const maybeId: number = JSON.parse(localStorage.getItem("id") || "0");
+    if (maybeId != 0) {
+      setId(maybeId);
+      localStorage.setItem("id", maybeId.toString());
+    } else {
+      fetch("/api/genId").then((res) => res.text()).then(parseInt).then(
+        (newId) => {
+          setId(newId);
+          localStorage.setItem("id", newId.toString());
+        },
+      );
+    }
+  }, []);
   useEffect(() => {
     setUrls(JSON.parse(localStorage.getItem("urls") || "[]"));
   }, []);
@@ -86,15 +134,25 @@ export default function Main() {
     }
     fetch("/api/pinger", {
       method: "POST",
-      body: JSON.stringify(urls),
+      body: JSON.stringify({
+        id,
+        urls,
+      }),
     });
   }, [urls]);
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <Input value={url} setValue={setUrl} />
       <AddButton newUrl={url} urls={urls} setUrls={setUrls} />
-      <Urls urls={urls} setUrls={setUrls} />
+      <Urls id={id} urls={urls} setUrls={setUrls} />
     </div>
   );
 }

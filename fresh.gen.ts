@@ -2,14 +2,16 @@
 // This file SHOULD be checked into source version control.
 // To update this file, run `fresh manifest`.
 
-import * as $0 from "./routes/api/pinger.ts";
-import * as $1 from "./routes/index.tsx";
+import * as $0 from "./routes/api/genId.ts";
+import * as $1 from "./routes/api/pinger.ts";
+import * as $2 from "./routes/index.tsx";
 import * as $$0 from "./islands/Main.tsx";
 
 const manifest = {
   routes: {
-    "./routes/api/pinger.ts": $0,
-    "./routes/index.tsx": $1,
+    "./routes/api/genId.ts": $0,
+    "./routes/api/pinger.ts": $1,
+    "./routes/index.tsx": $2,
   },
   islands: {
     "./islands/Main.tsx": $$0,
