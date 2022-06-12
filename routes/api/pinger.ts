@@ -17,8 +17,10 @@ async function pinger(users: Map<number, Map<string, "up" | "down">>) {
             console.error(`${url} is down`);
             users.get(userId)!.set(url, "down");
           }
-        } catch {
+        } catch (e) {
           console.error(`${url} is down`);
+          console.error(e);
+
           users.get(userId)!.set(url, "down");
         }
       }
